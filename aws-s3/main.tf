@@ -28,12 +28,12 @@ resource "aws_s3_bucket" "demo-aws_s3_bucket" {
   }
 }
 
-# Uploading objects to the bucket
-resource "aws_s3_object" "bucket-data" {
-  bucket = aws_s3_bucket.demo-aws_s3_bucket.bucket
-  source = "./myfile.txt"
-  key    = "mydata.txt"
-}
+# # Uploading objects to the bucket
+# resource "aws_s3_object" "bucket-data" {
+#   bucket = aws_s3_bucket.demo-aws_s3_bucket.bucket
+#   source = "./myfile.txt"
+#   key    = "mydata.txt"
+# }
 
 output "ame" {
   value = random_id.random_id.hex
