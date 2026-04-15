@@ -137,6 +137,23 @@ The `tf-backend` module showcases best practices by moving the state file from l
 
 ---
 
+## 📚 Documentation & Detailed Notes
+
+For a deeper dive into specific topics, check out the dedicated notes in the `notes/` directory:
+- 📦 **[State Management](notes/state-management.md)**: Logic behind `.tfstate` and remote backends.
+- 🛠️ **[Variables & Outputs](notes/variables-and-outputs.md)**: How to parameterize your code.
+- 🔌 **[Providers & Resources](notes/providers-and-resources.md)**: The core building blocks of HCL.
+- 🏆 **[Best Practices](notes/best-practices.md)**: Industry standards for maintainable IaC.
+
+---
+
+## 🔗 Useful Links & Resources
+- 🚀 **[Official Terraform Documentation](https://developer.hashicorp.com/terraform/docs)**
+- 🔧 **[AWS Provider Registry](https://registry.terraform.io/providers/hashicorp/aws/latest)**: The official documentation for all AWS resources in Terraform.
+- 📜 **[Terraform Best Practices Guide](https://www.terraform-best-practices.com/)**
+
+---
+
 ## 📜 License
 This repository is for educational purposes. Feel free to use the snippets for your own learning!
 
