@@ -87,7 +87,13 @@
 
     <section class="article-section">
       <div class="code-card">
-        <div class="code-title">Daily Terraform commands</div>
+        <div class="code-title">
+          <span>Daily Terraform commands</span>
+          <button class="copy-btn" data-copy-btn aria-label="Copy code to clipboard">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="2" width="9" height="11" rx="1.5"/><rect x="2" y="5" width="9" height="11" rx="1.5"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
         <pre><code>terraform init
 terraform fmt -recursive
 terraform validate
