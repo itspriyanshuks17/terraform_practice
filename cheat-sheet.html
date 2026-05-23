@@ -17,7 +17,14 @@
       <span class="brand-mark">tf</span>
       <span>Terraform Notes</span>
     </a>
-    <nav class="site-nav" aria-label="Primary navigation">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="siteNav">
+      <svg viewBox="0 0 18 18" aria-hidden="true">
+        <line x1="1" y1="4" x2="17" y2="4"/>
+        <line x1="1" y1="9" x2="17" y2="9"/>
+        <line x1="1" y1="14" x2="17" y2="14"/>
+      </svg>
+    </button>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
       <a href="index.html">Notes</a>
       <a href="projects.html">Projects</a>
       <a class="active" href="cheat-sheet.html">Cheat Sheet</a>
@@ -145,5 +152,6 @@ terraform destroy</code></pre>
     <span><a href="note.html?id=cli">Full CLI note</a></span>
     <span><a href="projects.html">Practice projects</a></span>
   </footer>
+  <script src="assets/js/nav-toggle.js"></script>
 </body>
 </html>
