@@ -64,7 +64,13 @@
       return `
         <section class="article-section">
           <div class="code-card">
-            <div class="code-title">${escapeHtml(section.title || "Code")}</div>
+            <div class="code-title">
+              <span>${escapeHtml(section.title || "Code")}</span>
+              <button class="copy-btn" data-copy-btn aria-label="Copy code to clipboard">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="2" width="9" height="11" rx="1.5"/><rect x="2" y="5" width="9" height="11" rx="1.5"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
             <pre><code>${escapeHtml(section.code)}</code></pre>
           </div>
         </section>
@@ -151,6 +157,7 @@
       ${note.tags.map(renderTag).join("")}
     `;
     body.innerHTML = note.sections.map(renderSection).join("");
+    if (typeof initCopyButtons === "function") initCopyButtons(body);
     renderSidebar();
     renderPager();
   }
