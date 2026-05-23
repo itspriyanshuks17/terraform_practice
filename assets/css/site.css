@@ -26,6 +26,17 @@
   box-sizing: border-box;
 }
 
+/* Safe-area padding for notched / Dynamic Island iPhones */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .site-header {
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+  }
+  .site-footer {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -964,26 +975,93 @@ tr:last-child td {
   border-radius: 999px;
 }
 
+/* ─── Hamburger toggle (mobile nav) ─── */
+.nav-toggle {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  padding: 0.45rem 0.6rem;
+  color: var(--muted);
+  line-height: 1;
+  transition: border-color 0.16s ease, color 0.16s ease;
+}
+
+.nav-toggle:hover {
+  border-color: var(--violet);
+  color: var(--violet-strong);
+}
+
+.nav-toggle svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.nav-toggle svg line {
+  transition: all 0.2s ease;
+}
+
+/* ─── Note sidebar toggle (mobile) ─── */
+.note-sidebar-toggle {
+  display: none; /* shown only at ≤900px via media query */
+}
+
+.note-sidebar-toggle svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+/* ─── Tablet / large mobile (≤ 900 px) ─── */
 @media (max-width: 900px) {
   .site-header {
     height: auto;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1.25rem;
+    gap: 0;
+  }
+
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .site-nav {
     width: 100%;
     margin-left: 0;
-    padding-bottom: 0.15rem;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.6rem 0 0.3rem;
+    border-top: 1px solid var(--border-soft);
+    margin-top: 0.6rem;
+  }
+
+  .site-nav.open {
+    display: flex;
+  }
+
+  .site-nav a {
+    width: 100%;
+    border-radius: 7px;
+    padding: 0.65rem 0.9rem;
+    font-size: 12px;
   }
 
   .hero {
-    width: min(100% - 2rem, 680px);
+    width: calc(100% - 2.5rem);
     min-height: 0;
     grid-template-columns: 1fr;
     padding: 2rem 0 1.5rem;
+    gap: 1.75rem;
   }
 
   .toolbar,
@@ -991,7 +1069,7 @@ tr:last-child td {
   .catalog,
   .no-results,
   .page-shell {
-    width: min(100% - 2rem, 680px);
+    width: calc(100% - 2.5rem);
   }
 
   .toolbar {
@@ -1012,32 +1090,77 @@ tr:last-child td {
     max-height: none;
   }
 
+  /* Sidebar collapsible on tablet */
+  .note-sidebar-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    color: var(--dim);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.25rem 0.7rem;
+    text-transform: uppercase;
+  }
+
+  #noteList.collapsed {
+    display: none;
+  }
+
   .hero h1 {
-    font-size: 3rem;
+    font-size: clamp(2rem, 7vw, 3rem);
   }
 
   .page-hero h1 {
-    font-size: 2.75rem;
+    font-size: clamp(1.75rem, 6vw, 2.75rem);
   }
 
   .note-article h1 {
-    font-size: 2.35rem;
+    font-size: clamp(1.6rem, 5.5vw, 2.35rem);
   }
 }
 
-@media (max-width: 560px) {
+/* ─── Small mobile (≤ 600 px) ─── */
+@media (max-width: 600px) {
   body {
     font-size: 14px;
   }
 
-  .hero h1,
-  .page-hero h1,
+  .hero {
+    width: calc(100% - 2rem);
+    padding: 1.5rem 0 1rem;
+  }
+
+  .toolbar,
+  .filter-bar,
+  .catalog,
+  .no-results,
+  .page-shell {
+    width: calc(100% - 2rem);
+  }
+
+  .hero h1 {
+    font-size: clamp(1.65rem, 8vw, 2.4rem);
+  }
+
+  .page-hero h1 {
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+  }
+
   .note-article h1 {
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 6.5vw, 2rem);
   }
 
   .hero-stats {
     gap: 1rem;
+  }
+
+  .hero-stats strong {
+    font-size: 1.45rem;
   }
 
   .notes-grid,
@@ -1052,5 +1175,104 @@ tr:last-child td {
 
   .pager a {
     max-width: 100%;
+  }
+
+  /* Stack site-footer vertically */
+  .site-footer {
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.25rem 1rem;
+  }
+
+  /* Shrink filter buttons a touch */
+  .filter-btn {
+    font-size: 10px;
+    padding: 0.45rem 0.65rem;
+  }
+
+  /* Code pre: don't let it bleed viewport */
+  pre {
+    font-size: 12px;
+  }
+}
+
+/* ─── Extra-small / narrow phones (≤ 400 px) ─── */
+@media (max-width: 400px) {
+  .site-header {
+    padding: 0.65rem 1rem;
+  }
+
+  .brand span:last-child {
+    display: none; /* show only the tf mark on very narrow screens */
+  }
+
+  .hero,
+  .toolbar,
+  .filter-bar,
+  .catalog,
+  .no-results,
+  .page-shell {
+    width: calc(100% - 1.5rem);
+  }
+
+  .hero h1 {
+    font-size: clamp(1.45rem, 9vw, 1.9rem);
+  }
+
+  .page-hero h1 {
+    font-size: clamp(1.3rem, 8.5vw, 1.8rem);
+  }
+
+  .note-article h1 {
+    font-size: clamp(1.25rem, 8vw, 1.65rem);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .hero-stats div {
+    min-width: 0;
+    text-align: center;
+  }
+
+  /* Ensure table doesn't break layout */
+  .note-table {
+    font-size: 12px;
+  }
+
+  table {
+    min-width: 480px;
+  }
+}
+
+/* ─── Touch: remove hover effects that feel wrong on touch ─── */
+@media (hover: none) {
+  .note-card:hover::before,
+  .project-card:hover::before,
+  .quick-card:hover::before {
+    background: transparent;
+  }
+
+  .note-card:hover .arrow,
+  .project-card:hover .arrow,
+  .quick-card:hover .arrow {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+
+  .btn:hover {
+    transform: none;
   }
 }
