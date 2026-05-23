@@ -17,7 +17,14 @@
       <span class="brand-mark">tf</span>
       <span>Terraform Notes</span>
     </a>
-    <nav class="site-nav" aria-label="Primary navigation">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="siteNav">
+      <svg viewBox="0 0 18 18" aria-hidden="true">
+        <line x1="1" y1="4" x2="17" y2="4"/>
+        <line x1="1" y1="9" x2="17" y2="9"/>
+        <line x1="1" y1="14" x2="17" y2="14"/>
+      </svg>
+    </button>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
       <a href="index.html">Notes</a>
       <a href="projects.html">Projects</a>
       <a href="cheat-sheet.html">Cheat Sheet</a>
@@ -28,7 +35,10 @@
 
   <main class="page-shell note-layout">
     <aside class="note-sidebar" aria-label="All Terraform notes">
-      <h2>All Notes</h2>
+      <button class="note-sidebar-toggle" id="sidebarToggle" aria-expanded="true" aria-controls="noteList">
+        All Notes
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="2 5 7 10 12 5"/></svg>
+      </button>
       <div id="noteList"></div>
     </aside>
 
@@ -50,5 +60,6 @@
 
   <script src="assets/js/terraform-notes.js"></script>
   <script src="assets/js/note.js"></script>
+  <script src="assets/js/nav-toggle.js"></script>
 </body>
 </html>
