@@ -740,6 +740,8 @@ img {
 .code-title {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   min-height: 36px;
   border-bottom: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.02);
@@ -749,6 +751,43 @@ img {
   letter-spacing: 0.1em;
   padding: 0 0.9rem;
   text-transform: uppercase;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  margin-left: auto;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  padding: 0.22rem 0.5rem;
+  text-transform: uppercase;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.copy-btn svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  border-color: rgba(32, 214, 179, 0.35);
+  background: rgba(32, 214, 179, 0.08);
+  color: var(--teal);
+}
+
+.copy-btn.copied {
+  border-color: rgba(57, 217, 138, 0.4);
+  background: rgba(57, 217, 138, 0.1);
+  color: var(--green);
 }
 
 pre {
