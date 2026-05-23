@@ -848,7 +848,7 @@ locals {
   
   # 4. Escaping interpolation
   # Value will literally be: The syntax is \${var.name}
-  instruction = "The syntax is $${var.name}"
+  instruction = "The syntax is $\${var.name}"
 }`
       },
       { type: "callout", tone: "warn", html: "<strong>Tip:</strong> In modern Terraform (0.12+), you do not need interpolation if you are <em>only</em> assigning a variable. Use <code>name = var.env</code> instead of <code>name = \"\${var.env}\"</code>." }
