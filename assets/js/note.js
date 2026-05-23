@@ -37,7 +37,7 @@
 
   function renderSection(section) {
     if (section.type === "lead") {
-      return `<section class="article-section">${sectionTitle(section)}<p class="lead">${escapeHtml(section.text)}</p></section>`;
+      return `<section class="article-section">${sectionTitle(section)}<p class="lead">${section.text}</p></section>`;
     }
 
     if (section.type === "grid") {
@@ -47,8 +47,8 @@
           <div class="feature-grid">
             ${section.items.map((item) => `
               <div class="feature-item">
-                <h3>${escapeHtml(item.title)}</h3>
-                <p>${escapeHtml(item.text)}</p>
+                <h3>${item.title}</h3>
+                <p>${item.text}</p>
               </div>
             `).join("")}
           </div>
@@ -85,7 +85,7 @@
             <table>
               <thead><tr>${section.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr></thead>
               <tbody>
-                ${section.rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}
+                ${section.rows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}
               </tbody>
             </table>
           </div>
@@ -102,8 +102,8 @@
               <div class="flow-step">
                 <span class="flow-num">${index + 1}</span>
                 <div>
-                  <h3>${escapeHtml(step.title)}</h3>
-                  <p>${escapeHtml(step.text)}</p>
+                  <h3>${step.title}</h3>
+                  <p>${step.text}</p>
                 </div>
               </div>
             `).join("")}
