@@ -17,7 +17,14 @@
       <span class="brand-mark">tf</span>
       <span>Terraform Notes</span>
     </a>
-    <nav class="site-nav" aria-label="Primary navigation">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="siteNav">
+      <svg viewBox="0 0 18 18" aria-hidden="true">
+        <line x1="1" y1="4" x2="17" y2="4"/>
+        <line x1="1" y1="9" x2="17" y2="9"/>
+        <line x1="1" y1="14" x2="17" y2="14"/>
+      </svg>
+    </button>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
       <a class="active" href="index.html">Notes</a>
       <a href="projects.html">Projects</a>
       <a href="cheat-sheet.html">Cheat Sheet</a>
@@ -81,5 +88,6 @@
 
   <script src="assets/js/terraform-notes.js"></script>
   <script src="assets/js/home.js"></script>
+  <script src="assets/js/nav-toggle.js"></script>
 </body>
 </html>
