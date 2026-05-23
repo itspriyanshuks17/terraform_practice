@@ -855,6 +855,386 @@ locals {
     ]
   },
   {
+    id: "loops",
+    num: "21",
+    title: "Loops: count vs for_each",
+    category: "mynotes",
+    description: "Learn how to provision multiple identical or similar resources dynamically using the count and for_each meta-arguments.",
+    tags: ["Loops", "count", "for_each"],
+    search: "loops iteration count for_each multiple resources dynamic block list map set meta-arguments",
+    sections: [
+      { type: "lead", text: "Instead of copying and pasting resource blocks, Terraform provides meta-arguments to iterate over lists or maps to create multiple resources." },
+      {
+        type: "table",
+        headers: ["Meta-argument", "Best for", "State tracking"],
+        rows: [
+          ["count", "Creating exactly N identical resources", "Tracked by index (e.g., aws_instance.web[0], [1])"],
+          ["for_each", "Creating multiple distinct resources from a map or set of strings", "Tracked by key (e.g., aws_instance.web['prod'])"]
+        ]
+      },
+      {
+        type: "code",
+        title: "Using count",
+        code: `variable "instance_count" {
+  default = 3
+}
+
+resource "aws_instance" "web" {
+  count         = var.instance_count
+  ami           = "ami-12345"
+  instance_type = "t2.micro"
+
+  tags = {
+    # count.index gives the current iteration number (0, 1, 2)
+    Name = "web-server-\${count.index}"
+  }
+}`
+      },
+      {
+        type: "code",
+        title: "Using for_each",
+        code: `variable "environments" {
+  type    = set(string)
+  default = ["dev", "staging", "prod"]
+}
+
+resource "aws_instance" "web" {
+  for_each      = var.environments
+  ami           = "ami-12345"
+  instance_type = "t2.micro"
+
+  tags = {
+    # each.key and each.value are the same for sets of strings
+    Name = "web-server-\${each.key}"
+  }
+}`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Pro Tip:</strong> Prefer <code>for_each</code> over <code>count</code> when iterating over lists of distinct items. If you add/remove an item from the middle of a <code>count</code> list, Terraform shifts all indices and may destroy/recreate resources unnecessarily. <code>for_each</code> avoids this by tracking by key." }
+    ]
+  },
+  {
+    id: "conditionals",
+    num: "22",
+    title: "Conditional Expressions",
+    category: "mynotes",
+    description: "Learn how to use conditional logic (the ternary operator) in Terraform to dynamically assign values or enable/disable resources.",
+    tags: ["Conditionals", "Logic", "Ternary"],
+    search: "conditional expressions ternary operator if else logic boolean enable disable resources dynamic value",
+    sections: [
+      { type: "lead", text: "Terraform uses the ternary operator (<code>condition ? true_val : false_val</code>) for conditional logic. This is commonly used to pick values based on the environment or to conditionally create resources." },
+      {
+        type: "grid",
+        items: [
+          { title: "Syntax", text: "The syntax evaluates a boolean expression. If true, it returns the first value. If false, it returns the second value." },
+          { title: "Types", text: "Both the true and false return values must be of the same type (or Terraform must be able to convert them to the same type safely)." },
+          { title: "Zero Resources", text: "You can conditionally disable resource creation entirely by combining conditionals with the <code>count</code> meta-argument." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Dynamic Value Assignment",
+        code: `variable "environment" {
+  default = "dev"
+}
+
+resource "aws_instance" "web" {
+  ami = "ami-12345"
+
+  # If environment is prod, use t3.large, else use t3.micro
+  instance_type = var.environment == "prod" ? "t3.large" : "t3.micro"
+}`
+      },
+      {
+        type: "code",
+        title: "Conditionally Creating a Resource",
+        code: `variable "create_eip" {
+  type    = bool
+  default = true
+}
+
+resource "aws_eip" "lb" {
+  # If create_eip is true, count is 1 (create it). If false, count is 0 (don't create it).
+  count = var.create_eip ? 1 : 0
+  
+  domain = "vpc"
+}`
+      },
+      { type: "callout", tone: "success", html: "<strong>Tip:</strong> Combining a boolean variable with <code>count = var.bool ? 1 : 0</code> is the standard Terraform pattern for an 'if/else' toggle on entire resources." }
+    ]
+  },
+  {
+    id: "advanced-commands",
+    num: "23",
+    title: "Advanced Commands: taint, import, graph",
+    category: "mynotes",
+    description: "Learn how to force recreation, adopt existing infrastructure, visualize dependencies, and safely manipulate state.",
+    tags: ["Commands", "State", "Advanced"],
+    search: "advanced commands taint untaint import graph replace state rm mv pull push manipulation",
+    sections: [
+      { type: "lead", text: "While <code>plan</code> and <code>apply</code> are your daily drivers, you sometimes need more surgical tools to fix state, bring existing resources under management, or visualize complex relationships." },
+      {
+        type: "grid",
+        items: [
+          { title: "import", text: "Bring an existing cloud resource under Terraform's management by mapping its ID to a resource block." },
+          { title: "taint / replace", text: "Mark a resource to be destroyed and recreated on the next apply. (Use -replace in modern Terraform)." },
+          { title: "graph", text: "Generate a visual dependency graph of your Terraform resources in DOT format." },
+          { title: "state mv / rm", text: "Rename a resource in state without destroying it, or remove a resource from state entirely." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Advanced CLI Examples",
+        code: `# 1. Import an existing S3 bucket into your state
+terraform import aws_s3_bucket.my_bucket bucket-name-12345
+
+# 2. Force a resource to be recreated (Modern approach)
+terraform apply -replace="aws_instance.web[0]"
+
+# (Legacy approach)
+terraform taint aws_instance.web[0]
+terraform apply
+
+# 3. Rename a resource without deleting it from the cloud
+terraform state mv aws_instance.old_name aws_instance.new_name
+
+# 4. Generate a dependency graph (can be piped to Graphviz)
+terraform graph > graph.dot`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Warning:</strong> Be extremely careful with <code>terraform state</code> commands like <code>rm</code>, <code>mv</code>, <code>push</code>, or <code>pull</code>. They bypass normal plans and directly modify your infrastructure's source of truth." }
+    ]
+  },
+  {
+    id: "debugging",
+    num: "24",
+    title: "Debugging Terraform Issues",
+    category: "mynotes",
+    description: "Learn how to troubleshoot and debug Terraform using environment variables, crash logs, and the console.",
+    tags: ["Debugging", "Logs", "Troubleshooting"],
+    search: "debugging logs terraform tf_log trace debug info warn error crash console troubleshooting",
+    sections: [
+      { type: "lead", text: "When Terraform fails, the standard error output isn't always enough. You can enable detailed trace logs or use the interactive console to figure out exactly what's going wrong." },
+      {
+        type: "grid",
+        items: [
+          { title: "TF_LOG", text: "Set this environment variable to TRACE, DEBUG, INFO, WARN, or ERROR to see verbose output of API calls and internal operations." },
+          { title: "TF_LOG_PATH", text: "Append the verbose logs to a specific file instead of dumping them all to your terminal screen." },
+          { title: "terraform console", text: "An interactive REPL environment where you can test expressions, check state attributes, and evaluate functions in real-time." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Enabling Debug Logs",
+        code: `# Enable the most verbose logging (TRACE)
+export TF_LOG=TRACE
+
+# Save the logs to a file to make them easier to search
+export TF_LOG_PATH="./terraform-debug.log"
+
+# Run your apply and inspect the file
+terraform apply`
+      },
+      {
+        type: "code",
+        title: "Using the Terraform Console",
+        code: `$ terraform console
+> upper("devops")
+"DEVOPS"
+
+> aws_instance.web.public_ip
+"203.0.113.12"
+
+> length(var.my_list)
+3
+> exit`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Warning:</strong> Debug logs (especially TRACE) will contain sensitive information, including cloud credentials and API tokens. <strong>Never</strong> upload raw trace logs to GitHub or public forums without scrubbing them first!" }
+    ]
+  },
+  {
+    id: "locals",
+    num: "25",
+    title: "Local Variables (locals)",
+    category: "mynotes",
+    description: "Learn how to use locals to centralize repeated expressions, assign names to expressions, and keep your code DRY.",
+    tags: ["Locals", "Variables", "DRY"],
+    search: "locals local variables dry reuse expressions naming repeating code internal centralize",
+    sections: [
+      { type: "lead", text: "While <code>variable</code> blocks are for <em>inputs</em> that users can override, <code>locals</code> are internal to your module. They allow you to assign a name to an expression, reducing repetition and making code more readable." },
+      {
+        type: "grid",
+        items: [
+          { title: "DRY Code", text: "If you find yourself writing the exact same interpolation or function call multiple times, move it to a local." },
+          { title: "Tagging", text: "Locals are the standard way to enforce consistent tagging across all resources in a module." },
+          { title: "No Overrides", text: "Unlike variables, users cannot pass values to locals from the command line or tfvars files." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Defining and Using Locals",
+        code: `variable "environment" { default = "dev" }
+variable "project" { default = "billing" }
+
+# Define locals
+locals {
+  # 1. Simplify complex strings
+  name_prefix = "\${var.environment}-\${var.project}"
+  
+  # 2. Centralize common tags
+  common_tags = {
+    Environment = var.environment
+    Project     = var.project
+    ManagedBy   = "Terraform"
+  }
+}
+
+resource "aws_instance" "app" {
+  ami = "ami-12345"
+
+  # Use locals with the 'local.' prefix
+  tags = merge(local.common_tags, {
+    Name = "\${local.name_prefix}-app-server"
+  })
+}`
+      },
+      { type: "callout", tone: "success", html: "<strong>Syntax Note:</strong> You define them in a <code>locals {}</code> block (plural), but you reference them as <code>local.name</code> (singular)." }
+    ]
+  },
+  {
+    id: "eks-cluster",
+    num: "26",
+    title: "Deploying an EKS Cluster: Architecture",
+    category: "mynotes",
+    description: "A detailed breakdown of the architecture and Terraform configuration required to deploy an Amazon Elastic Kubernetes Service (EKS) cluster.",
+    tags: ["EKS", "Kubernetes", "Architecture"],
+    search: "eks cluster kubernetes architecture control plane worker nodes iam roles vpc subnet deploy",
+    sections: [
+      { type: "lead", text: "Deploying EKS via Terraform requires orchestrating several AWS services. You don't just create a cluster; you build the network, the identity management, and the worker node capacity." },
+      { type: "callout", html: "<figure style='margin:0; text-align:center;'><img src='assets/eks-architecture.png' alt='EKS Architecture Diagram' style='max-width: 100%; border-radius: 8px; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'><figcaption style='margin-top: 8px; font-size: 0.875rem; color: #94a3b8;'>AWS EKS Architecture Overview</figcaption></figure>" },
+      {
+        type: "grid",
+        items: [
+          { title: "1. Networking (VPC)", text: "EKS requires a VPC with at least two subnets in different Availability Zones. Public subnets for load balancers, private for worker nodes." },
+          { title: "2. IAM Roles", text: "The EKS Control Plane needs a role to manage AWS resources (like ELB). Worker nodes need a separate role to pull container images from ECR." },
+          { title: "3. Control Plane", text: "The managed Kubernetes master nodes provided by AWS (aws_eks_cluster)." },
+          { title: "4. Node Groups", text: "The actual EC2 instances (workers) that run your pods, managed by an EKS Node Group (aws_eks_node_group)." }
+        ]
+      },
+      {
+        type: "code",
+        title: "EKS Cluster and IAM Setup",
+        code: `# 1. IAM Role for EKS Cluster
+resource "aws_iam_role" "eks_cluster_role" {
+  name = "eks-cluster-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "eks.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster_role.name
+}
+
+# 2. The EKS Cluster
+resource "aws_eks_cluster" "main" {
+  name     = "my-eks-cluster"
+  role_arn = aws_iam_role.eks_cluster_role.arn
+
+  vpc_config {
+    subnet_ids = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  }
+
+  depends_on = [aws_iam_role_policy_attachment.eks_policy]
+}`
+      },
+      {
+        type: "code",
+        title: "EKS Managed Node Group",
+        code: `# 3. Managed Node Group for worker nodes
+resource "aws_eks_node_group" "workers" {
+  cluster_name    = aws_eks_cluster.main.name
+  node_group_name = "standard-workers"
+  node_role_arn   = aws_iam_role.worker_role.arn
+  subnet_ids      = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  instance_types = ["t3.medium"]
+}`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Warning:</strong> Creating an EKS cluster takes about 10-15 minutes and incurs an hourly cost (approx $0.10/hr) just for the control plane, plus EC2 costs for worker nodes. Don't forget to run <code>terraform destroy</code> when you're done!" }
+    ]
+  },
+  {
+    id: "terraform-cicd",
+    num: "27",
+    title: "Terraform CI/CD Pipeline & Architecture",
+    category: "mynotes",
+    description: "A comprehensive guide on structuring a DevOps CI/CD pipeline for Terraform, including security scanning, state backends, and manual approvals.",
+    tags: ["CI/CD", "DevOps", "Architecture"],
+    search: "cicd pipeline devops architecture github actions jenkins tfsec tflint approval state backend s3 dynamodb",
+    sections: [
+      { type: "lead", text: "In a professional DevOps environment, you never run <code>terraform apply</code> from your local laptop. Instead, you commit code to a Git repository and rely on a CI/CD pipeline to safely validate, plan, and apply the infrastructure changes." },
+      { type: "callout", html: "<figure style='margin:0; text-align:center;'><img src='assets/terraform-cicd.png' alt='Terraform CI/CD Architecture Diagram' style='max-width: 100%; border-radius: 8px; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'><figcaption style='margin-top: 8px; font-size: 0.875rem; color: #94a3b8;'>DevOps CI/CD Pipeline Architecture for Terraform</figcaption></figure>" },
+      {
+        type: "grid",
+        items: [
+          { title: "1. Version Control", text: "All Terraform code (.tf files) is stored in a Git repository (GitHub/GitLab). Feature branches are used for new infrastructure code." },
+          { title: "2. Security & Linting", text: "Before running a plan, tools like 'tfsec' (security), 'tflint' (best practices), and 'terraform fmt' validate the code." },
+          { title: "3. Plan & Review", text: "The pipeline runs 'terraform plan' and attaches the output to the Pull Request. Reviewers can see exactly what will change." },
+          { title: "4. Apply & State", text: "After merging, 'terraform apply' runs. The state is locked remotely (via DynamoDB) and stored securely (via S3)." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Example GitHub Actions Workflow (CI/CD)",
+        code: `name: 'Terraform CI/CD'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: tfsec Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.0
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Important:</strong> The <code>terraform apply -auto-approve</code> command should only run automatically on your main branch AFTER a Pull Request has been manually reviewed and merged by a senior engineer." }
+    ]
+  },
+  {
     id: "project-ec2-s3",
     num: "P1",
     title: "Project 1: EC2 and S3 Basics",
