@@ -69,7 +69,8 @@ window.TERRAFORM_NOTES = [
         headers: ["OS", "Recommended Method", "Package Manager"],
         rows: [
           ["Ubuntu / Debian", "HashiCorp APT repo", "apt"],
-          ["RHEL / CentOS / Amazon Linux", "HashiCorp YUM repo", "yum / dnf"],
+          ["RHEL / CentOS / Amazon Linux", "HashiCorp RHEL repo", "yum"],
+          ["Fedora", "HashiCorp Fedora repo", "dnf"],
           ["macOS", "Homebrew tap", "brew"],
           ["Windows", "Chocolatey or Winget", "choco / winget"],
           ["Any Linux", "Manual binary download", "zip / unzip"]
@@ -90,17 +91,27 @@ terraform version`
       },
       {
         type: "code",
-        title: "RHEL / CentOS / Fedora / Amazon Linux",
-        code: `# Add HashiCorp YUM/DNF repo
+        title: "RHEL / CentOS / Amazon Linux",
+        code: `# Add the HashiCorp RHEL repo (works for RHEL, CentOS, Amazon Linux)
 sudo yum install -y yum-utils
 sudo yum-config-manager --add-repo \\
   https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 
 sudo yum install -y terraform
+terraform version`
+      },
+      {
+        type: "code",
+        title: "Fedora",
+        code: `# Remove any stale RHEL repo first (if previously added)
+sudo rm -f /etc/yum.repos.d/hashicorp.repo
 
-# Fedora (dnf)
+# Add the correct Fedora-specific HashiCorp repo
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager addrepo \\
+  --from-repofile=https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+
 sudo dnf install -y terraform
-
 terraform version`
       },
       {
