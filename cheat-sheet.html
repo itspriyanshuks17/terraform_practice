@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform Cheat Sheet | One Shot Notes</title>
+  <meta name="description" content="Terraform CLI cheat sheet for the Terraform In One Shot Hindi notes site.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Terraform Notes home">
+      <span class="brand-mark">tf</span>
+      <span>Terraform Notes</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="index.html">Notes</a>
+      <a href="projects.html">Projects</a>
+      <a class="active" href="cheat-sheet.html">Cheat Sheet</a>
+      <a href="https://www.youtube.com/watch?v=S9mohJI_R34" target="_blank" rel="noreferrer">Video</a>
+      <a href="https://github.com/itspriyanshuks17/terraform_practice" target="_blank" rel="noreferrer">Repo</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-hero">
+      <p class="eyebrow">CLI Reference</p>
+      <h1>The Terraform workflow, short enough to keep open while practicing.</h1>
+      <p>Use this page while working through the hands-on AWS labs. It keeps the important commands close without digging through the full notes.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <span class="section-kicker">Workflow</span>
+        <h2 class="section-title">Standard command loop</h2>
+      </div>
+      <div class="quick-grid">
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">01</div>
+          <h3>terraform init</h3>
+          <p>Initialize providers and backend configuration before any other command.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">02</div>
+          <h3>terraform fmt</h3>
+          <p>Format Terraform files to the standard HCL style.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">03</div>
+          <h3>terraform validate</h3>
+          <p>Check syntax and configuration validity before planning.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">04</div>
+          <h3>terraform plan</h3>
+          <p>Preview what Terraform will create, update, or destroy.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">05</div>
+          <h3>terraform apply</h3>
+          <p>Execute the reviewed plan and create real infrastructure.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+        <a class="quick-card" href="note.html?id=cli">
+          <div class="quick-label">06</div>
+          <h3>terraform destroy</h3>
+          <p>Delete the managed lab resources when practice is complete.</p>
+          <span class="arrow">-&gt;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="article-section">
+      <div class="code-card">
+        <div class="code-title">Daily Terraform commands</div>
+        <pre><code>terraform init
+terraform fmt -recursive
+terraform validate
+terraform plan -out=tfplan
+terraform apply tfplan
+terraform output
+terraform show
+terraform destroy</code></pre>
+      </div>
+    </section>
+
+    <section class="article-section">
+      <div class="note-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Situation</th>
+              <th>Command</th>
+              <th>Use carefully because</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Inspect state resources</td>
+              <td><code>terraform state list</code></td>
+              <td>Useful before imports, moves, and cleanup.</td>
+            </tr>
+            <tr>
+              <td>Import an existing resource</td>
+              <td><code>terraform import ADDRESS ID</code></td>
+              <td>The config still has to match the imported object.</td>
+            </tr>
+            <tr>
+              <td>Move state address</td>
+              <td><code>terraform state mv OLD NEW</code></td>
+              <td>Great for refactors, but check addresses first.</td>
+            </tr>
+            <tr>
+              <td>Remove from state only</td>
+              <td><code>terraform state rm ADDRESS</code></td>
+              <td>It does not delete the real cloud resource.</td>
+            </tr>
+            <tr>
+              <td>Release stuck lock</td>
+              <td><code>terraform force-unlock LOCK_ID</code></td>
+              <td>Only use when you know no other apply is running.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="article-section">
+      <div class="callout success">
+        <strong>Practice order:</strong> finish EC2/S3 first, then VPC/Nginx, then static website plus remote backend. That path matches the way the concepts build on each other.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Terraform CLI Cheat Sheet</span>
+    <span><a href="note.html?id=cli">Full CLI note</a></span>
+    <span><a href="projects.html">Practice projects</a></span>
+  </footer>
+</body>
+</html>
