@@ -59,14 +59,25 @@ window.TERRAFORM_NOTES = [
     num: "03",
     title: "Installation & AWS Setup",
     category: "foundation",
-    description: "Install Terraform, configure AWS credentials, and verify the CLI before creating resources.",
-    tags: ["CLI", "AWS", "Setup"],
-    search: "terraform install setup aws credentials aws configure environment variables cli",
+    description: "Install Terraform on Ubuntu, RHEL, macOS, or Windows, configure AWS credentials, and verify the CLI.",
+    tags: ["CLI", "AWS", "Setup", "Windows", "macOS", "Linux"],
+    search: "terraform install setup aws credentials configure environment variables cli ubuntu debian rhel centos amazon linux fedora macos homebrew windows chocolatey winget binary",
     sections: [
-      { type: "lead", text: "Install Terraform locally, then configure credentials for the cloud provider. The AWS provider can read credentials from the AWS CLI profile or environment variables." },
+      { type: "lead", text: "Terraform ships as a single binary for every major OS. Pick your platform below, then configure AWS credentials so the provider can reach your account." },
+      {
+        type: "table",
+        headers: ["OS", "Recommended Method", "Package Manager"],
+        rows: [
+          ["Ubuntu / Debian", "HashiCorp APT repo", "apt"],
+          ["RHEL / CentOS / Amazon Linux", "HashiCorp YUM repo", "yum / dnf"],
+          ["macOS", "Homebrew tap", "brew"],
+          ["Windows", "Chocolatey or Winget", "choco / winget"],
+          ["Any Linux", "Manual binary download", "zip / unzip"]
+        ]
+      },
       {
         type: "code",
-        title: "Ubuntu / Debian install",
+        title: "Ubuntu / Debian",
         code: `wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | \\
   sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
@@ -74,20 +85,96 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \\
   https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \\
   sudo tee /etc/apt/sources.list.d/hashicorp.list
 
-sudo apt update
-sudo apt install terraform
+sudo apt update && sudo apt install -y terraform
 terraform version`
       },
       {
         type: "code",
-        title: "AWS credentials",
-        code: `aws configure
+        title: "RHEL / CentOS / Fedora / Amazon Linux",
+        code: `# Add HashiCorp YUM/DNF repo
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo \\
+  https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 
+sudo yum install -y terraform
+
+# Fedora (dnf)
+sudo dnf install -y terraform
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "macOS — Homebrew",
+        code: `# Install Homebrew first if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Tap HashiCorp and install Terraform
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+# Upgrade later
+brew upgrade hashicorp/tap/terraform
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "Windows — Chocolatey (recommended)",
+        code: `# Run PowerShell as Administrator
+choco install terraform
+
+# Upgrade later
+choco upgrade terraform
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "Windows — Winget",
+        code: `# PowerShell or Command Prompt
+winget install --id Hashicorp.Terraform -e
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "Windows — Manual ZIP",
+        code: `# 1. Download ZIP from: https://developer.hashicorp.com/terraform/downloads
+# 2. Extract terraform.exe
+# 3. Move to a folder already in PATH (run in PowerShell Admin)
+Move-Item .\\terraform.exe C:\\Windows\\System32\\
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "Any Linux — Manual Binary",
+        code: `# Replace VERSION with the latest (e.g. 1.8.5)
+TF_VERSION="1.8.5"
+wget "https://releases.hashicorp.com/terraform/\${TF_VERSION}/terraform_\${TF_VERSION}_linux_amd64.zip"
+unzip "terraform_\${TF_VERSION}_linux_amd64.zip"
+sudo mv terraform /usr/local/bin/
+
+terraform version`
+      },
+      {
+        type: "code",
+        title: "AWS credentials — all platforms",
+        code: `# Option 1: interactive wizard (all OS)
+aws configure
+
+# Option 2: environment variables — Linux / macOS
 export AWS_ACCESS_KEY_ID="your-key"
 export AWS_SECRET_ACCESS_KEY="your-secret"
-export AWS_DEFAULT_REGION="ap-south-1"`
+export AWS_DEFAULT_REGION="ap-south-1"
+
+# Option 2: environment variables — Windows PowerShell
+$env:AWS_ACCESS_KEY_ID     = "your-key"
+$env:AWS_SECRET_ACCESS_KEY = "your-secret"
+$env:AWS_DEFAULT_REGION    = "ap-south-1"`
       },
-      { type: "callout", tone: "warn", html: "For real projects, prefer short-lived credentials or IAM roles. Never commit access keys to Git." }
+      { type: "callout", tone: "warn", html: "For real projects, prefer short-lived credentials or IAM roles. <strong>Never commit access keys to Git.</strong>" }
     ]
   },
   {
