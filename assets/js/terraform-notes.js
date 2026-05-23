@@ -3,7 +3,8 @@ window.TERRAFORM_CATEGORIES = [
   { id: "language", label: "HCL & Building Blocks", kicker: "Track 02" },
   { id: "state", label: "State & Collaboration", kicker: "Track 03" },
   { id: "advanced", label: "Advanced Terraform", kicker: "Track 04" },
-  { id: "projects", label: "Live DevOps Projects", kicker: "Track 05" }
+  { id: "mynotes", label: "My Notes", kicker: "Track 05" },
+  { id: "projects", label: "Live DevOps Projects", kicker: "Track 06" }
 ];
 
 window.TERRAFORM_NOTES = [
@@ -609,6 +610,248 @@ terraform force-unlock LOCK_ID`
           "<strong>Separate environments.</strong> Dev, staging, and prod should not fight over one state."
         ]
       }
+    ]
+  },
+  {
+    id: "terraform-vs-cloudformation",
+    num: "16",
+    title: "Terraform vs. CloudFormation",
+    category: "mynotes",
+    description: "Understand the key differences between HashiCorp's cloud-agnostic Terraform and AWS's native CloudFormation.",
+    tags: ["CloudFormation", "AWS", "Comparison"],
+    search: "difference between terraform and cloudformation aws vendor lock-in cloud agnostic state management json yaml hcl",
+    sections: [
+      { type: "lead", text: "While both Terraform and CloudFormation allow you to define infrastructure as code, they have different philosophies regarding cloud support, language, and state management." },
+      {
+        type: "table",
+        headers: ["Feature", "Terraform", "CloudFormation"],
+        rows: [
+          ["Cloud Support", "Cloud-agnostic (multi-cloud and services)", "AWS specific"],
+          ["Language", "HCL (HashiCorp Configuration Language)", "JSON or YAML"],
+          ["State Management", "Maintained in a local or remote .tfstate file", "Managed implicitly by AWS via stacks"],
+          ["Reusability", "Modules", "Nested Stacks"],
+          ["Ecosystem", "Massive registry of providers", "Primarily AWS services"],
+          ["Execution", "Client-side (CLI runs on your machine/CI)", "Server-side (AWS executes the stack)"]
+        ]
+      },
+      { type: "callout", tone: "success", html: "<strong>The bottom line:</strong> If you use multiple cloud providers or SaaS tools (like Datadog, GitHub, Cloudflare), Terraform is usually the better choice. If you are strictly 100% AWS and want zero state files to manage locally, CloudFormation is a solid option." }
+    ]
+  },
+  {
+    id: "basic-syntax",
+    num: "17",
+    title: "Basic Syntax & Block Types",
+    category: "mynotes",
+    description: "Deep dive into Terraform's core syntax, understanding blocks, arguments, attributes, and the various types of blocks available.",
+    tags: ["Syntax", "Blocks", "Attributes"],
+    search: "basic syntax blocks arguments attributes types of blocks resource data provider variable output locals module terraform hcl",
+    sections: [
+      { type: "lead", text: "Terraform configuration is written in HashiCorp Configuration Language (HCL). Everything you define is structured around blocks, arguments, and attributes." },
+      {
+        type: "grid",
+        items: [
+          { title: "Blocks", text: "Containers for other content. They represent objects like resources, providers, or variables." },
+          { title: "Arguments", text: "Settings or inputs assigned a value inside a block (e.g., ami = \"ami-123\")." },
+          { title: "Attributes", text: "Values exported by a block that you can reference elsewhere (e.g., aws_instance.web.id)." }
+        ]
+      },
+      {
+        type: "table",
+        headers: ["Block Type", "Purpose", "Example"],
+        rows: [
+          ["terraform", "Global settings, required providers, and backend config", "terraform { required_version = \">= 1.0\" }"],
+          ["provider", "Configures a specific cloud provider (e.g., AWS, Azure)", "provider \"aws\" { region = \"us-east-1\" }"],
+          ["resource", "Defines infrastructure objects to be created", "resource \"aws_instance\" \"web\" { ... }"],
+          ["data", "Fetches information about existing infrastructure", "data \"aws_ami\" \"ubuntu\" { ... }"],
+          ["variable", "Input parameters for your Terraform module", "variable \"instance_type\" { ... }"],
+          ["output", "Return values from your Terraform module", "output \"public_ip\" { ... }"],
+          ["locals", "Defines local, reusable variables within a module", "locals { env = \"dev\" }"],
+          ["module", "Calls and configures a child Terraform module", "module \"vpc\" { source = \"./vpc\" }"]
+        ]
+      },
+      {
+        type: "code",
+        title: "Example Program: Putting it all together",
+        code: `# 1. 'terraform' block (global settings)
+terraform {
+  required_version = ">= 1.5.0"
+}
+
+# 2. 'variable' block (input arguments)
+variable "instance_name" {
+  type    = string
+  default = "my-web-server"
+}
+
+# 3. 'provider' block (configuring the AWS plugin)
+provider "aws" {
+  region = "ap-south-1"  # 'region' is an argument
+}
+
+# 4. 'data' block (querying existing infra)
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"]
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-22.04-amd64-server-*"]
+  }
+}
+
+# 5. 'resource' block (creating new infra)
+resource "aws_instance" "web" {
+  # 'ami' and 'instance_type' are arguments
+  ami           = data.aws_ami.ubuntu.id  # '.id' is an attribute from the data block
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = var.instance_name
+  }
+}
+
+# 6. 'output' block (exporting attributes)
+output "server_ip" {
+  # '.public_ip' is an exported attribute from the resource block
+  value = aws_instance.web.public_ip
+}`
+      },
+      { type: "callout", tone: "success", html: "<strong>Tip:</strong> Arguments are what you <em>put in</em> to configure an object, while Attributes are what you <em>get out</em> to reference in other parts of your code." }
+    ]
+  },
+  {
+    id: "expressions-functions",
+    num: "18",
+    title: "Expressions & Functions",
+    category: "mynotes",
+    description: "Learn how to use expressions for dynamic configuration, conditionals, loops, and Terraform's built-in functions.",
+    tags: ["Expressions", "Functions", "Logic"],
+    search: "expressions functions conditionals loops for dynamic interpolation strings numbers maps upper length join",
+    sections: [
+      { type: "lead", text: "Terraform doesn't let you write custom functions, but it provides a rich set of built-in functions and expressions to compute values dynamically." },
+      {
+        type: "grid",
+        items: [
+          { title: "Conditionals", text: "Use the ternary operator to choose between two values: condition ? true_val : false_val." },
+          { title: "For Expressions", text: "Transform lists and maps, similar to list comprehensions in Python: [for v in list : upper(v)]." },
+          { title: "Splat Expressions", text: "A shorthand way to get a list of attributes from a list of objects: aws_instance.web[*].id." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Examples of Expressions and Functions",
+        code: `locals {
+  # 1. Built-in Functions
+  # String functions: upper, lower, replace, join, split
+  team_name = upper("devops")  # Results in "DEVOPS"
+  
+  # Collection functions: length, merge, contains
+  subnet_count = length(["10.0.1.0/24", "10.0.2.0/24"])  # Results in 2
+
+  # 2. Conditionals (Ternary Operator)
+  # syntax: condition ? true_val : false_val
+  instance_type = var.env == "prod" ? "t3.large" : "t3.micro"
+
+  # 3. For Expressions (transforming collections)
+  names = ["alice", "bob", "charlie"]
+  caps  = [for name in local.names : title(name)]
+  # Results in ["Alice", "Bob", "Charlie"]
+}`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Note:</strong> You cannot define your own custom functions in Terraform. You must combine the built-in functions to achieve your desired logic." }
+    ]
+  },
+  {
+    id: "core-blocks",
+    num: "19",
+    title: "Core Blocks: Provider, Resource, Variable, Output, Module",
+    category: "mynotes",
+    description: "A detailed breakdown of the five most essential Terraform blocks that make up almost every infrastructure deployment.",
+    tags: ["Core", "Blocks", "Structure"],
+    search: "provider resource variable output module core blocks deep dive aws parameters variables outputs reuse code",
+    sections: [
+      { type: "lead", text: "These five blocks form the absolute foundation of Terraform. If you understand how they interact, you can build almost anything." },
+      {
+        type: "grid",
+        items: [
+          { title: "1. Provider", text: "The plugin that interacts with cloud APIs (e.g., AWS, Azure). You must configure a provider before you can create resources." },
+          { title: "2. Resource", text: "The actual infrastructure components you are creating, like an EC2 instance, an S3 bucket, or a DNS record." },
+          { title: "3. Variable", text: "Inputs that parameterize your configuration, allowing you to reuse the same code across different environments (Dev, Prod)." },
+          { title: "4. Output", text: "Values returned after Terraform applies your code, useful for querying IPs, endpoints, or passing data between modules." },
+          { title: "5. Module", text: "A package of Terraform configurations used together. Modules allow you to encapsulate and reuse infrastructure logic." }
+        ]
+      },
+      {
+        type: "code",
+        title: "How they interact",
+        code: `# VARIABLE: Takes input from the user
+variable "region" { default = "us-east-1" }
+
+# PROVIDER: Uses the variable to configure the plugin
+provider "aws" { region = var.region }
+
+# MODULE: Wraps a complex setup (like a VPC) into one block
+module "network" {
+  source = "./modules/vpc"
+  cidr   = "10.0.0.0/16"
+}
+
+# RESOURCE: Deploys a specific item inside the network module
+resource "aws_instance" "app" {
+  ami       = "ami-12345"
+  subnet_id = module.network.public_subnet_id
+}
+
+# OUTPUT: Displays the final result to the console
+output "app_url" { value = aws_instance.app.public_ip }`
+      }
+    ]
+  },
+  {
+    id: "string-interpolation",
+    num: "20",
+    title: "String Interpolation",
+    category: "mynotes",
+    description: "Learn how to evaluate expressions, insert variables, and use directives inside strings in Terraform HCL.",
+    tags: ["Strings", "Interpolation", "Variables"],
+    search: "string interpolation evaluation variables syntax brackets dollar sign expressions directives if else for inside strings",
+    sections: [
+      { type: "lead", text: "String interpolation allows you to embed expressions into a string, letting you build dynamic names, ARNs, or configuration files easily." },
+      {
+        type: "grid",
+        items: [
+          { title: "Syntax", text: "Use the \${ ... } sequence to evaluate expressions and insert the result into a surrounding string." },
+          { title: "Directives", text: "Terraform strings also support %{ ... } directives for conditionals (if/else) and iteration (for) directly inside the string." },
+          { title: "Escaping", text: "If you need a literal \${ or %{ in your string, you can escape it by doubling the first character: $${ or %%{." }
+        ]
+      },
+      {
+        type: "code",
+        title: "Interpolation Examples",
+        code: `variable "environment" {
+  default = "prod"
+}
+
+variable "server_id" {
+  default = "123"
+}
+
+# 1. Basic Variable Interpolation
+locals {
+  server_name = "web-server-\${var.environment}-\${var.server_id}"
+  # Result: "web-server-prod-123"
+
+  # 2. Referencing Resource Attributes
+  # "arn:aws:s3:::\${aws_s3_bucket.my_bucket.id}/my-path"
+
+  # 3. Directives (If/Else inside a string)
+  greeting = "Hello, %{ if var.environment == \\"prod\\" }Production%{ else }Non-Prod%{ endif }!"
+  
+  # 4. Escaping interpolation
+  # Value will literally be: The syntax is \${var.name}
+  instruction = "The syntax is $${var.name}"
+}`
+      },
+      { type: "callout", tone: "warn", html: "<strong>Tip:</strong> In modern Terraform (0.12+), you do not need interpolation if you are <em>only</em> assigning a variable. Use <code>name = var.env</code> instead of <code>name = \"\${var.env}\"</code>." }
     ]
   },
   {
